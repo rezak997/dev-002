@@ -1,0 +1,52 @@
+#!/bin/bash
+INTERVAL=2
+NUMBER=3
+function read_args {
+    while (( "$#" )); do
+        case $1 in
+            -i)
+               INTERVAL=$2
+               shift 2
+                ;;
+            -n)
+               NUMBER=$2
+               shift 2
+                ;;
+            *)
+              INPUT=$1
+              if [[ $INPUT = -* ]]
+                   then
+                   echo "INVALID ARGUMENT"
+               fi
+                COMMAND=$*
+                break
+               ;;
+        esac
+done
+}
+
+function execute {
+    read_args $*
+        if [[ $COMMAND='' ]]
+        then
+            echo "please enter command!"
+                exit 1
+        fi
+        for i in $(seq 1 $NUMBER) ; do
+            $COMMAND 2>/dev/null
+            EXCODE=$?
+            if [[ $EXCODE -ne 0 ]]
+                then
+                    echo "execution faild!retry after ${INTERVAL} seconds"
+                    sleep $INTERVAL;
+            else
+                echo "command executed successfully!"
+                exit 0
+            fi
+        done
+        echo "command faild!please check command and try again"
+        exit 1;
+
+}
+
+execute $*
