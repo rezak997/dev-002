@@ -1,0 +1,52 @@
+#!/bin/bash 
+#########################################################
+#this function read all arguments and initiate variables
+#########################################################
+function read_args {
+    while (( "$#" )); do  
+	case $1 in
+            -i)
+               INTERVAL=$2
+	       shift 2
+		;;
+            -n)
+               NUMBER=$2
+	       shift 2
+		;;
+	    *)
+	      INPUT=$1
+	      if [[ $INPUT = -* ]]
+		   then
+	           echo "INVALID ARGUMENT"
+	       fi
+		COMMAND=$*
+		break
+	       ;; 
+	esac
+done
+}
+#########################################################
+#this function execute command 
+#if cammand return 0 code then echo successful message
+#else,try n times after t seconds 
+#########################################################
+function execute {
+    read_args $*
+	for i in $(seq 1 $NUMBER) ; do
+	    $COMMAND 2>/dev/null
+	    EXCODE=$?
+	    if [[ $EXCODE -ne 0 ]]
+	    	then
+      	            echo "execution faild!retry after ${INTERVAL} seconds"
+	            sleep $INTERVAL;
+	    else
+	        echo "command executed successfully!"
+		exit 0
+	    fi
+	done
+	echo "command faild!please check command and try again"
+	exit 1;
+
+}
+
+execute $*
